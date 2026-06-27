@@ -508,36 +508,45 @@ export function QuietpressSection(): React.JSX.Element {
           </div>
         )}
 
-        {/* Hero Centered Content (Top Center, leaving middle screen completely open) */}
-        <div className="relative z-10 w-full max-w-5xl mx-auto pt-28 sm:pt-36 md:pt-44 px-4 sm:px-6 flex flex-col items-center text-center">
+        {/* Hero Content (Anchored Top-Left, keeping center and right viewport 100% unobstructed) */}
+        <div className="absolute top-28 sm:top-36 md:top-40 left-6 sm:left-10 md:left-16 z-10 max-w-xl flex flex-col items-start text-left pointer-events-auto">
           {/* Tag Badge */}
           <div
-            className={`liquid-glass rounded-lg px-4 py-1.5 text-xs sm:text-sm text-white mb-5 sm:mb-6 font-mono ${
+            className={`liquid-glass rounded-full px-4 py-1.5 text-xs sm:text-sm text-white mb-5 sm:mb-6 font-mono tracking-wider border border-white/20 ${
               isActive ? 'animate-fade-up delay-1' : 'opacity-0'
             }`}
-            style={{ background: 'rgba(255, 255, 255, 0.16)' }}
+            style={{ background: 'rgba(255, 255, 255, 0.12)' }}
           >
             Original Compositions by Laeddis
           </div>
 
           {/* Headline */}
           <h1
-            className={`max-w-3xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1] text-white font-normal tracking-tight whitespace-pre-line ${
+            className={`text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white leading-[1.08] whitespace-pre-line drop-shadow-lg ${
               isActive ? 'animate-fade-up delay-2' : 'opacity-0'
             }`}
           >
             {"Immersive Cinematic\nSoundscapes."}
           </h1>
 
+          {/* Subtext */}
+          <p
+            className={`mt-4 sm:mt-5 max-w-md text-sm sm:text-base leading-relaxed text-white/80 font-light drop-shadow ${
+              isActive ? 'animate-fade-up delay-3' : 'opacity-0'
+            }`}
+          >
+            Original acoustic orchestrations, dark ambient synthesis, and dynamic scores crafted for film worlds and deep listening.
+          </p>
+
           {/* Call to Action Button */}
           <div
-            className={`mt-8 ${
+            className={`mt-7 sm:mt-8 ${
               isActive ? 'animate-fade-up delay-4' : 'opacity-0'
             }`}
           >
             <button
               onClick={handleListenLatest}
-              className="group relative inline-flex items-center gap-3 rounded-xl bg-[#5E0ED7] px-7 py-3 text-sm sm:text-base font-semibold text-white shadow-xl hover:bg-[#6f19f7] hover:scale-105 active:scale-95 transition-all duration-200"
+              className="group relative inline-flex items-center gap-3 rounded-full bg-[#5E0ED7] px-8 py-3.5 text-sm sm:text-base font-semibold tracking-wide text-white shadow-2xl shadow-[#5E0ED7]/40 hover:bg-[#6f19f7] hover:scale-105 active:scale-95 transition-all duration-300"
             >
               <Volume2 size={18} className="animate-pulse" />
               <span>Listen to the Latest Release</span>
@@ -545,12 +554,12 @@ export function QuietpressSection(): React.JSX.Element {
           </div>
         </div>
 
-        {/* Sleek Vertical Tracklist (Compact Bottom-Right Widget, keeping center screen completely unobstructed) */}
+        {/* Sleek Vertical Tracklist (Bottom-Right Dock, keeping diagonal center 100% unobstructed) */}
         <div
-          className={`absolute bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-10 z-20 w-[280px] sm:w-80 liquid-glass rounded-2xl p-3 shadow-2xl border border-white/15 backdrop-blur-md ${
+          className={`absolute bottom-6 right-6 sm:bottom-8 sm:right-8 md:bottom-12 md:right-12 z-20 w-[290px] sm:w-80 rounded-2xl p-3.5 shadow-2xl border border-white/15 backdrop-blur-xl transition-all duration-300 ${
             isActive ? 'animate-fade-up delay-5' : 'opacity-0'
           }`}
-          style={{ background: 'rgba(0, 0, 0, 0.65)' }}
+          style={{ background: 'rgba(12, 12, 16, 0.68)' }}
         >
           <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 px-1 text-[11px] uppercase tracking-wider text-white/50 font-mono">
             <span>Showcase Tracks</span>

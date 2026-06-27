@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X, Play, Pause, Volume2, Music } from 'lucide-react';
+import { Menu, X, Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Music } from 'lucide-react';
 
 const VIDEO_URL =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260611_183632_c311af08-e4b7-458f-81e7-79847a49b3d3.mp4';
@@ -326,6 +326,16 @@ function VisualizerBars({ isPlaying }: { isPlaying: boolean }): React.JSX.Elemen
 }
 
 /**
+ * Formats seconds into M:SS string format.
+ */
+function formatTime(seconds: number): string {
+  if (isNaN(seconds) || seconds <= 0) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
+/**
  * Full-screen composer showcase section for Laeddis.
  */
 export function QuietpressSection(): React.JSX.Element {
@@ -335,6 +345,9 @@ export function QuietpressSection(): React.JSX.Element {
   const [isActive, setIsActive] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
   useEffect(function initObserver(): () => void {
     const section = sectionRef.current;
@@ -406,13 +419,36 @@ export function QuietpressSection(): React.JSX.Element {
     }
 
     const audio = new Audio(track.url);
+    audio.muted = isMuted;
     audioRef.current = audio;
 
     /**
-     * Resets playing state when audio reaches the end.
+     * Updates playback progress time.
+     */
+    function handleTimeUpdate(): void {
+      setCurrentTime(audio.currentTime);
+    }
+
+    /**
+     * Sets total track duration when metadata loads.
+     */
+    function handleMetadata(): void {
+      setDuration(audio.duration);
+    }
+
+    /**
+     * Advances to next track when playback ends.
      */
     function handleEnded(): void {
-      setPlayingTrackId(null);
+      setCurrentTime(0);
+      const currIdx = TRACKS.findIndex(function matchId(t): boolean { return t.id === track.id; });
+      const nextIdx = (currIdx + 1) % TRACKS.length;
+      const nxt = TRACKS[nextIdx];
+      if (nxt) {
+        playAudioForTrack(nxt);
+      } else {
+        setPlayingTrackId(null);
+      }
     }
 
     /**
@@ -422,9 +458,62 @@ export function QuietpressSection(): React.JSX.Element {
       setPlayingTrackId(null);
     }
 
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleMetadata);
     audio.addEventListener('ended', handleEnded);
     audio.play().catch(handlePlayError);
     setPlayingTrackId(track.id);
+  }
+
+  /**
+   * Skips to the next track in the playlist.
+   */
+  function handleNextTrack(): void {
+    if (!playingTrackId) {
+      const first = TRACKS[0];
+      if (first) playAudioForTrack(first);
+      return;
+    }
+    const currIdx = TRACKS.findIndex(function matchId(t): boolean { return t.id === playingTrackId; });
+    const nextIdx = (currIdx + 1) % TRACKS.length;
+    const nxt = TRACKS[nextIdx];
+    if (nxt) playAudioForTrack(nxt);
+  }
+
+  /**
+   * Skips to the previous track in the playlist.
+   */
+  function handlePrevTrack(): void {
+    if (!playingTrackId) {
+      const last = TRACKS[TRACKS.length - 1];
+      if (last) playAudioForTrack(last);
+      return;
+    }
+    const currIdx = TRACKS.findIndex(function matchId(t): boolean { return t.id === playingTrackId; });
+    const prevIdx = (currIdx - 1 + TRACKS.length) % TRACKS.length;
+    const prv = TRACKS[prevIdx];
+    if (prv) playAudioForTrack(prv);
+  }
+
+  /**
+   * Toggles audio mute state.
+   */
+  function toggleMute(): void {
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted;
+    }
+    setIsMuted(function invertMute(m: boolean): boolean { return !m; });
+  }
+
+  /**
+   * Seeks audio playback to the scrubber position.
+   */
+  function handleSeek(e: React.ChangeEvent<HTMLInputElement>): void {
+    const val = parseFloat(e.target.value);
+    setCurrentTime(val);
+    if (audioRef.current) {
+      audioRef.current.currentTime = val;
+    }
   }
 
   /**
@@ -562,47 +651,107 @@ export function QuietpressSection(): React.JSX.Element {
           </div>
         </div>
 
-        {/* Sleek Vertical Tracklist (Bottom-Right Dock, keeping diagonal center 100% unobstructed) */}
+        {/* Sleek Vertical Tracklist & Player Dock (Bottom-Right Dock, keeping diagonal center 100% unobstructed) */}
         <div
-          className={`absolute bottom-6 right-6 sm:bottom-8 sm:right-8 md:bottom-12 md:right-12 z-20 w-[290px] sm:w-80 rounded-2xl p-3.5 shadow-2xl border border-white/15 backdrop-blur-xl transition-all duration-300 ${
+          className={`absolute bottom-6 right-6 sm:bottom-8 sm:right-8 md:bottom-12 md:right-12 z-20 w-[310px] sm:w-96 rounded-3xl p-4 shadow-2xl border border-white/20 backdrop-blur-2xl transition-all duration-300 ${
             isActive ? 'animate-fade-up delay-5' : 'opacity-0'
           }`}
-          style={{ background: 'rgba(12, 12, 16, 0.68)' }}
+          style={{ background: 'rgba(12, 12, 16, 0.78)' }}
         >
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 px-1 text-[11px] uppercase tracking-wider text-white/50 font-mono">
-            <span>Showcase Tracks</span>
-            <span>Live Audio</span>
+          {/* Player Transport Bar & Minimalist Progress Slider */}
+          <div className="pb-3 mb-3 border-b border-white/10 px-1">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#5E0ED7] font-semibold">
+                {playingTrackId ? `Playing Track ${playingTrackId}` : 'Showcase Archive'}
+              </span>
+              <span className="text-[11px] font-mono text-white/70">
+                {formatTime(currentTime)} / {formatTime(duration || 0)}
+              </span>
+            </div>
+
+            {/* Minimalist Interactive Progress Slider */}
+            <div className="w-full py-1 flex items-center">
+              <input
+                type="range"
+                min={0}
+                max={duration || 100}
+                value={currentTime}
+                onChange={handleSeek}
+                className="w-full h-1 hover:h-1.5 transition-all rounded-full bg-white/20 accent-[#5E0ED7] cursor-pointer appearance-none outline-none"
+              />
+            </div>
+
+            {/* Transport Buttons */}
+            <div className="flex items-center justify-between mt-2 pt-0.5">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handlePrevTrack}
+                  className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                  aria-label="Previous Track"
+                >
+                  <SkipBack size={16} />
+                </button>
+                <button
+                  onClick={function handlePlayPauseToggle(): void {
+                    const active = TRACKS.find(function match(t): boolean { return t.id === playingTrackId; }) || TRACKS[0];
+                    if (active) playAudioForTrack(active);
+                  }}
+                  className="h-8 w-8 rounded-full bg-[#5E0ED7] text-white flex items-center justify-center shadow-lg shadow-[#5E0ED7]/40 hover:scale-105 active:scale-95 transition-all"
+                  aria-label="Play or Pause"
+                >
+                  {playingTrackId ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" className="ml-0.5" />}
+                </button>
+                <button
+                  onClick={handleNextTrack}
+                  className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                  aria-label="Next Track"
+                >
+                  <SkipForward size={16} />
+                </button>
+              </div>
+
+              <button
+                onClick={toggleMute}
+                className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Toggle Mute"
+              >
+                {isMuted ? <VolumeX size={16} className="text-red-400" /> : <Volume2 size={16} />}
+              </button>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1.5 max-h-[260px] sm:max-h-[320px] overflow-y-auto pr-1">
+          {/* Tactile Song Row Cards Container */}
+          <div className="flex flex-col gap-2 max-h-[240px] sm:max-h-[300px] overflow-y-auto pr-1">
             {TRACKS.map(function renderRow(track): React.JSX.Element {
               const isPlaying = playingTrackId === track.id;
               return (
                 <div
                   key={track.id}
                   onClick={function handleRowClick(): void { playAudioForTrack(track); }}
-                  className={`group flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                  className={`group flex items-center justify-between p-2.5 rounded-2xl cursor-pointer transition-all duration-300 border ${
                     isPlaying
-                      ? 'bg-[#5E0ED7]/30 border border-[#5E0ED7]/60 text-white shadow-md'
-                      : 'bg-white/5 hover:bg-white/10 text-white/90 border border-transparent'
+                      ? 'bg-[#5E0ED7]/25 border-[#5E0ED7] shadow-[0_0_15px_rgba(94,14,215,0.35)] text-white scale-[1.01]'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-white/90 hover:scale-[1.01]'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <button
-                      className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
-                        isPlaying ? 'bg-[#5E0ED7] text-white' : 'bg-white/10 group-hover:bg-white/20 text-white'
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Styled Track Index Badge */}
+                    <div
+                      className={`h-7 w-7 rounded-xl flex items-center justify-center shrink-0 text-xs font-mono font-medium transition-all ${
+                        isPlaying
+                          ? 'bg-[#5E0ED7] text-white shadow-md'
+                          : 'bg-[#5E0ED7]/15 border border-[#5E0ED7]/30 text-[#5E0ED7] group-hover:bg-[#5E0ED7]/25'
                       }`}
-                      aria-label={isPlaying ? 'Pause' : 'Play'}
                     >
-                      {isPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
-                    </button>
-                    <div className="truncate">
-                      <p className="text-xs font-medium truncate">{track.title}</p>
-                      <p className="text-[10px] text-white/60 truncate">{track.mood}</p>
+                      {isPlaying ? <Pause size={12} fill="currentColor" /> : track.id}
+                    </div>
+                    <div className="truncate text-left">
+                      <p className="text-xs sm:text-sm font-medium truncate leading-tight">{track.title}</p>
+                      <p className="text-[10px] text-white/60 truncate mt-0.5">{track.mood}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2.5 shrink-0 ml-2">
                     <VisualizerBars isPlaying={isPlaying} />
                     <span className="text-[11px] font-mono text-white/60">{track.duration}</span>
                   </div>

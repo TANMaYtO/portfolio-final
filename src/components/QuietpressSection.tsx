@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X, Play, Pause, Volume2, Music, Sparkles } from 'lucide-react';
+import { Menu, X, Play, Pause, Volume2, Music } from 'lucide-react';
 
 const VIDEO_URL =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260611_183632_c311af08-e4b7-458f-81e7-79847a49b3d3.mp4';
@@ -17,30 +17,23 @@ const TRACKS: TrackItem[] = [
   {
     id: '01',
     title: 'Echoes of Veldara',
-    mood: 'Dark Atmospheric / Orchestral',
+    mood: 'Cinematic Orchestral',
     duration: '3:42',
     baseFreq: 110.0, // A2
   },
   {
     id: '02',
     title: 'Vernal Woods Resonance',
-    mood: 'Ambient Synth / Organic Drone',
+    mood: 'Ambient Synth Drone',
     duration: '4:15',
     baseFreq: 130.81, // C3
   },
   {
     id: '03',
     title: 'Cybernetic Horizon',
-    mood: 'Sci-Fi Score / Deep Pulse',
+    mood: 'Sci-Fi Deep Pulse',
     duration: '2:58',
     baseFreq: 146.83, // D3
-  },
-  {
-    id: '04',
-    title: 'The Calm Listener',
-    mood: 'Acoustic Piano / Ethereal Strings',
-    duration: '5:10',
-    baseFreq: 164.81, // E3
   },
 ];
 
@@ -281,19 +274,19 @@ function BoomerangVideoBg(): React.JSX.Element {
  */
 function VisualizerBars({ isPlaying }: { isPlaying: boolean }): React.JSX.Element {
   return (
-    <div className="flex items-end gap-1 h-5 px-2">
-      {[0.8, 1.0, 0.6, 0.9, 0.7].map(function renderBar(mult, idx): React.JSX.Element {
+    <div className="flex items-end gap-0.5 h-3.5 px-1">
+      {[0.8, 1.0, 0.6, 0.9].map(function renderBar(mult, idx): React.JSX.Element {
         return (
           <motion.div
             key={idx}
-            className="w-1 bg-[#5E0ED7] rounded-full"
+            className="w-0.5 bg-[#5E0ED7] rounded-full"
             animate={
               isPlaying
-                ? { height: [4, 20 * mult, 6, 18 * mult, 4] }
-                : { height: 4 }
+                ? { height: [3, 14 * mult, 4, 12 * mult, 3] }
+                : { height: 3 }
             }
             transition={{
-              duration: 0.6 + idx * 0.1,
+              duration: 0.5 + idx * 0.1,
               repeat: Infinity,
               ease: 'easeInOut',
             }}
@@ -381,7 +374,7 @@ export function QuietpressSection(): React.JSX.Element {
     stopAudio();
 
     if (playingTrackId === track.id) {
-      return; // If clicking the playing track, stopAudio() already paused it
+      return;
     }
 
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -433,10 +426,6 @@ export function QuietpressSection(): React.JSX.Element {
     const latest = TRACKS[0];
     if (latest) {
       playAudioForTrack(latest);
-      const listEl = document.getElementById('discography-list');
-      if (listEl) {
-        listEl.scrollIntoView({ behavior: 'smooth' });
-      }
     }
   }
 
@@ -449,104 +438,96 @@ export function QuietpressSection(): React.JSX.Element {
     >
       <section
         ref={sectionRef}
-        className="quietpress-root relative z-20 min-h-screen w-full overflow-hidden bg-black text-white select-none py-20 flex flex-col justify-between"
+        className="quietpress-root relative z-20 h-screen w-full overflow-hidden bg-black text-white select-none"
+        style={{ height: '100dvh' }}
       >
         {/* Background Boomerang Video */}
         <BoomerangVideoBg />
 
         {/* Header Bar */}
-        <header className="absolute top-0 inset-x-0 z-20 px-6 sm:px-10 py-6 flex items-center justify-between border-b border-white/10 bg-black/30 backdrop-blur-md">
+        <header className="absolute top-0 inset-x-0 z-20 px-4 sm:px-6 py-5 flex items-center justify-between">
           {/* Left: Brand Identity */}
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-[#5E0ED7] flex items-center justify-center text-white shadow-lg shadow-[#5E0ED7]/40">
-              <Music size={16} />
+          <div className="flex items-center gap-2.5">
+            <div className="h-6 w-6 rounded-full bg-[#5E0ED7] flex items-center justify-center text-white shadow-md shadow-[#5E0ED7]/40">
+              <Music size={13} />
             </div>
-            <span className="text-lg tracking-widest text-white font-semibold uppercase">LAEDDIS</span>
+            <span className="text-base tracking-widest text-white font-semibold uppercase">LAEDDIS</span>
           </div>
 
           {/* Center: Composer Nav Links */}
-          <nav className="hidden md:flex items-center gap-10 text-sm tracking-wider uppercase text-white/80 font-medium">
-            <a href="#discography-list" className="hover:text-[#5E0ED7] transition-colors">Discography</a>
-            <a href="#orchestral" className="hover:text-[#5E0ED7] transition-colors">Orchestral Projects</a>
-            <a href="#sound-design" className="hover:text-[#5E0ED7] transition-colors">Sound Design</a>
-            <a href="#about-laeddis" className="hover:text-[#5E0ED7] transition-colors">About</a>
+          <nav className="hidden md:flex items-center gap-8 text-sm text-white/90 font-medium">
+            <a href="#discography" className="hover:text-white transition-colors">Discography</a>
+            <a href="#orchestral" className="hover:text-white transition-colors">Orchestral Projects</a>
+            <a href="#sound-design" className="hover:text-white transition-colors">Sound Design</a>
+            <a href="#about" className="hover:text-white transition-colors">About</a>
           </nav>
 
-          {/* Right Side: Mobile Toggle */}
+          {/* Right Side: Mobile Menu Toggle */}
           <div className="flex items-center">
             <button
               onClick={toggleMenu}
-              className="liquid-glass h-10 w-10 rounded-xl flex items-center justify-center text-white md:hidden hover:scale-105 active:scale-95 transition-transform duration-200"
+              className="liquid-glass h-9 w-9 rounded-xl flex items-center justify-center text-white md:hidden hover:scale-105 active:scale-95 transition-transform duration-200"
               aria-label="Toggle Navigation Menu"
             >
-              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </header>
 
         {/* Mobile Nav Dropdown */}
         {isMenuOpen && (
-          <div className="absolute top-20 left-0 right-0 z-30 liquid-glass mx-6 rounded-2xl p-4 flex flex-col gap-2 md:hidden shadow-2xl animate-fade-up border border-white/10">
+          <div className="absolute top-20 left-0 right-0 z-30 liquid-glass mx-4 rounded-2xl p-2 flex flex-col gap-1 md:hidden shadow-2xl animate-fade-up">
             <a
-              href="#discography-list"
+              href="#discography"
               onClick={toggleMenu}
-              className="rounded-xl px-4 py-3 text-sm tracking-wider uppercase text-white/90 hover:bg-[#5E0ED7]/20 transition-colors"
+              className="rounded-xl px-4 py-3 text-sm text-white/90 hover:bg-white/10 transition-colors"
             >
               Discography
             </a>
             <a
               href="#orchestral"
               onClick={toggleMenu}
-              className="rounded-xl px-4 py-3 text-sm tracking-wider uppercase text-white/90 hover:bg-[#5E0ED7]/20 transition-colors"
+              className="rounded-xl px-4 py-3 text-sm text-white/90 hover:bg-white/10 transition-colors"
             >
               Orchestral Projects
             </a>
             <a
               href="#sound-design"
               onClick={toggleMenu}
-              className="rounded-xl px-4 py-3 text-sm tracking-wider uppercase text-white/90 hover:bg-[#5E0ED7]/20 transition-colors"
+              className="rounded-xl px-4 py-3 text-sm text-white/90 hover:bg-white/10 transition-colors"
             >
               Sound Design
             </a>
             <a
-              href="#about-laeddis"
+              href="#about"
               onClick={toggleMenu}
-              className="rounded-xl px-4 py-3 text-sm tracking-wider uppercase text-white/90 hover:bg-[#5E0ED7]/20 transition-colors"
+              className="rounded-xl px-4 py-3 text-sm text-white/90 hover:bg-white/10 transition-colors"
             >
               About
             </a>
           </div>
         )}
 
-        {/* Main Hero & Tracklist Content */}
-        <div className="relative z-10 w-full max-w-5xl mx-auto pt-24 sm:pt-32 px-6 flex flex-col items-center text-center my-auto">
+        {/* Hero Centered Content (Top Center, leaving middle screen completely open) */}
+        <div className="relative z-10 w-full max-w-5xl mx-auto pt-28 sm:pt-36 md:pt-44 px-4 sm:px-6 flex flex-col items-center text-center">
           {/* Tag Badge */}
           <div
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm text-white/90 mb-6 border border-white/20 bg-white/5 backdrop-blur-md ${
+            className={`liquid-glass rounded-lg px-4 py-1.5 text-xs sm:text-sm text-white mb-5 sm:mb-6 font-mono ${
               isActive ? 'animate-fade-up delay-1' : 'opacity-0'
             }`}
+            style={{ background: 'rgba(255, 255, 255, 0.16)' }}
           >
-            <Sparkles size={14} className="text-[#5E0ED7]" />
-            <span className="tracking-widest uppercase font-mono">Original Compositions by Laeddis</span>
+            Original Compositions by Laeddis
           </div>
 
           {/* Headline */}
           <h1
-            className={`max-w-4xl text-4xl sm:text-6xl md:text-7xl leading-[1.08] text-white font-light tracking-tight whitespace-pre-line ${
+            className={`max-w-3xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1] text-white font-normal tracking-tight whitespace-pre-line ${
               isActive ? 'animate-fade-up delay-2' : 'opacity-0'
             }`}
           >
             {"Immersive Cinematic\nSoundscapes."}
           </h1>
-
-          {/* Subtext */}
-          <p
-            className={`mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-white/80 font-light ${
-              isActive ? 'animate-fade-up delay-3' : 'opacity-0'
-            }`}
-          >
-            Original acoustic orchestrations, dark ambient synthesis, and dynamic scores crafted for film worlds, interactive media, and deep emotional resonance.
-          </p>
 
           {/* Call to Action Button */}
           <div
@@ -556,69 +537,61 @@ export function QuietpressSection(): React.JSX.Element {
           >
             <button
               onClick={handleListenLatest}
-              className="group relative inline-flex items-center gap-3 rounded-full bg-[#5E0ED7] px-8 py-4 text-sm sm:text-base font-semibold tracking-wide text-white shadow-2xl shadow-[#5E0ED7]/50 hover:bg-[#6f19f7] hover:scale-105 active:scale-95 transition-all duration-300"
+              className="group relative inline-flex items-center gap-3 rounded-xl bg-[#5E0ED7] px-7 py-3 text-sm sm:text-base font-semibold text-white shadow-xl hover:bg-[#6f19f7] hover:scale-105 active:scale-95 transition-all duration-200"
             >
               <Volume2 size={18} className="animate-pulse" />
               <span>Listen to the Latest Release</span>
             </button>
           </div>
+        </div>
 
-          {/* Sleek Vertical Tracklist Section */}
-          <div
-            id="discography-list"
-            className={`mt-16 w-full max-w-3xl rounded-3xl border border-white/10 bg-black/60 backdrop-blur-xl p-4 sm:p-6 shadow-2xl ${
-              isActive ? 'animate-fade-up delay-5' : 'opacity-0'
-            }`}
-          >
-            <div className="flex items-center justify-between pb-4 mb-2 border-b border-white/10 px-3 text-xs uppercase tracking-widest text-white/50 font-mono">
-              <span>Track Title</span>
-              <span className="hidden sm:inline">Mood / Genre</span>
-              <span>Audio</span>
-            </div>
+        {/* Sleek Vertical Tracklist (Compact Bottom-Right Widget, keeping center screen completely unobstructed) */}
+        <div
+          className={`absolute bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-10 z-20 w-[280px] sm:w-80 liquid-glass rounded-2xl p-3 shadow-2xl border border-white/15 backdrop-blur-md ${
+            isActive ? 'animate-fade-up delay-5' : 'opacity-0'
+          }`}
+          style={{ background: 'rgba(0, 0, 0, 0.65)' }}
+        >
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 px-1 text-[11px] uppercase tracking-wider text-white/50 font-mono">
+            <span>Showcase Tracks</span>
+            <span>Live Audio</span>
+          </div>
 
-            <div className="flex flex-col gap-2">
-              {TRACKS.map(function renderRow(track): React.JSX.Element {
-                const isPlaying = playingTrackId === track.id;
-                return (
-                  <div
-                    key={track.id}
-                    onClick={function handleRowClick(): void { playAudioForTrack(track); }}
-                    className={`group flex items-center justify-between p-3.5 sm:p-4 rounded-2xl cursor-pointer transition-all duration-200 border ${
-                      isPlaying
-                        ? 'bg-[#5E0ED7]/20 border-[#5E0ED7]/60 text-white shadow-lg'
-                        : 'bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10 text-white/90'
-                    }`}
-                  >
-                    {/* Left: Track ID & Title */}
-                    <div className="flex items-center gap-4 text-left min-w-0">
-                      <button
-                        className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                          isPlaying ? 'bg-[#5E0ED7] text-white shadow-md' : 'bg-white/10 group-hover:bg-white/20 text-white'
-                        }`}
-                        aria-label={isPlaying ? 'Pause' : 'Play'}
-                      >
-                        {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" className="ml-0.5" />}
-                      </button>
-                      <div className="truncate">
-                        <p className="text-sm sm:text-base font-medium truncate">{track.title}</p>
-                        <p className="sm:hidden text-xs text-white/60 truncate mt-0.5">{track.mood}</p>
-                      </div>
-                    </div>
-
-                    {/* Center: Mood/Genre (Desktop) */}
-                    <div className="hidden sm:block text-xs font-light text-white/70 tracking-wide">
-                      {track.mood}
-                    </div>
-
-                    {/* Right: Duration & Visualizer */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      <VisualizerBars isPlaying={isPlaying} />
-                      <span className="text-xs font-mono text-white/60 w-10 text-right">{track.duration}</span>
+          <div className="flex flex-col gap-1.5">
+            {TRACKS.map(function renderRow(track): React.JSX.Element {
+              const isPlaying = playingTrackId === track.id;
+              return (
+                <div
+                  key={track.id}
+                  onClick={function handleRowClick(): void { playAudioForTrack(track); }}
+                  className={`group flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    isPlaying
+                      ? 'bg-[#5E0ED7]/30 border border-[#5E0ED7]/60 text-white shadow-md'
+                      : 'bg-white/5 hover:bg-white/10 text-white/90 border border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <button
+                      className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                        isPlaying ? 'bg-[#5E0ED7] text-white' : 'bg-white/10 group-hover:bg-white/20 text-white'
+                      }`}
+                      aria-label={isPlaying ? 'Pause' : 'Play'}
+                    >
+                      {isPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
+                    </button>
+                    <div className="truncate">
+                      <p className="text-xs font-medium truncate">{track.title}</p>
+                      <p className="text-[10px] text-white/60 truncate">{track.mood}</p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <VisualizerBars isPlaying={isPlaying} />
+                    <span className="text-[11px] font-mono text-white/60">{track.duration}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -10,30 +10,58 @@ interface TrackItem {
   title: string;
   mood: string;
   duration: string;
-  baseFreq: number;
+  url: string;
 }
 
 const TRACKS: TrackItem[] = [
   {
     id: '01',
-    title: 'Echoes of Veldara',
-    mood: 'Cinematic Orchestral',
-    duration: '3:42',
-    baseFreq: 110.0, // A2
+    title: '1998 Dodge Caravan',
+    mood: 'Lo-Fi / Indie Ambient',
+    duration: '3:14',
+    url: '/songs/1998-dodge-caravan.flac',
   },
   {
     id: '02',
-    title: 'Vernal Woods Resonance',
-    mood: 'Ambient Synth Drone',
-    duration: '4:15',
-    baseFreq: 130.81, // C3
+    title: 'Black Eyed Dogs',
+    mood: 'Dark Acoustic / Gritty',
+    duration: '3:45',
+    url: '/songs/black-eyed-dogs.flac',
   },
   {
     id: '03',
-    title: 'Cybernetic Horizon',
-    mood: 'Sci-Fi Deep Pulse',
-    duration: '2:58',
-    baseFreq: 146.83, // D3
+    title: 'Cold Metal Body',
+    mood: 'Industrial / Synthwave',
+    duration: '4:12',
+    url: '/songs/cold-metal-body.flac',
+  },
+  {
+    id: '04',
+    title: "Flower's End",
+    mood: 'Ethereal / Melancholic',
+    duration: '3:30',
+    url: '/songs/flowers-end.flac',
+  },
+  {
+    id: '05',
+    title: 'God Is Dead...',
+    mood: 'Experimental / Raw Pulse',
+    duration: '2:48',
+    url: '/songs/god-is-dead.mp3',
+  },
+  {
+    id: '06',
+    title: 'Maiden Heaven',
+    mood: 'Dream Pop / Atmospheric',
+    duration: '3:55',
+    url: '/songs/maiden-heaven.flac',
+  },
+  {
+    id: '07',
+    title: 'Za Warudo',
+    mood: 'Cinematic / Epic Score',
+    duration: '3:20',
+    url: '/songs/za-warudo.flac',
   },
 ];
 
@@ -302,9 +330,7 @@ function VisualizerBars({ isPlaying }: { isPlaying: boolean }): React.JSX.Elemen
  */
 export function QuietpressSection(): React.JSX.Element {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const oscillatorsRef = useRef<OscillatorNode[]>([]);
-  const gainNodeRef = useRef<GainNode | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [isActive, setIsActive] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -337,6 +363,19 @@ export function QuietpressSection(): React.JSX.Element {
     return disconnectObserver;
   }, []);
 
+  useEffect(function initAudioCleanup(): () => void {
+    /**
+     * Stops audio playback when component unmounts.
+     */
+    function cleanupAudio(): void {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    }
+    return cleanupAudio;
+  }, []);
+
   /**
    * Toggles mobile menu state.
    */
@@ -351,71 +390,40 @@ export function QuietpressSection(): React.JSX.Element {
   }
 
   /**
-   * Stops any currently synthesized audio tones.
-   */
-  function stopAudio(): void {
-    oscillatorsRef.current.forEach(function stopOsc(osc: OscillatorNode): void {
-      try {
-        osc.stop();
-        osc.disconnect();
-      } catch (e) {}
-    });
-    oscillatorsRef.current = [];
-    if (gainNodeRef.current) {
-      try { gainNodeRef.current.disconnect(); } catch (e) {}
-    }
-    setPlayingTrackId(null);
-  }
-
-  /**
-   * Synthesizes ambient cinematic drone for the specified track using Web Audio API.
+   * Plays or pauses real audio file for the specified track.
    */
   function playAudioForTrack(track: TrackItem): void {
-    stopAudio();
-
     if (playingTrackId === track.id) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setPlayingTrackId(null);
       return;
     }
 
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new AudioContextClass();
-    }
-    const ctx = audioCtxRef.current;
-    if (ctx.state === 'suspended') {
-      ctx.resume();
+    if (audioRef.current) {
+      audioRef.current.pause();
     }
 
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0.01, ctx.currentTime);
-    masterGain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 1.2);
-    masterGain.connect(ctx.destination);
-    gainNodeRef.current = masterGain;
+    const audio = new Audio(track.url);
+    audioRef.current = audio;
 
-    const freqs = [track.baseFreq, track.baseFreq * 1.5, track.baseFreq * 2.0];
-    const newOscs: OscillatorNode[] = [];
+    /**
+     * Resets playing state when audio reaches the end.
+     */
+    function handleEnded(): void {
+      setPlayingTrackId(null);
+    }
 
-    freqs.forEach(function createOsc(freq: number, index: number): void {
-      const osc = ctx.createOscillator();
-      osc.type = index === 0 ? 'sine' : 'triangle';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    /**
+     * Catches and ignores playback errors.
+     */
+    function handlePlayError(): void {
+      setPlayingTrackId(null);
+    }
 
-      const lfo = ctx.createOscillator();
-      lfo.frequency.value = 0.2 + index * 0.1;
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 1.5;
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
-      lfo.start();
-
-      osc.connect(masterGain);
-      osc.start();
-      newOscs.push(osc, lfo);
-    });
-
-    oscillatorsRef.current = newOscs;
+    audio.addEventListener('ended', handleEnded);
+    audio.play().catch(handlePlayError);
     setPlayingTrackId(track.id);
   }
 
@@ -566,7 +574,7 @@ export function QuietpressSection(): React.JSX.Element {
             <span>Live Audio</span>
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 max-h-[260px] sm:max-h-[320px] overflow-y-auto pr-1">
             {TRACKS.map(function renderRow(track): React.JSX.Element {
               const isPlaying = playingTrackId === track.id;
               return (

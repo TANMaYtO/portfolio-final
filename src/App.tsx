@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight, FileText } from 'lucide-react';
 import { BackgroundVideo } from './components/BackgroundVideo';
 import { Navbar } from './components/Navbar';
-import { VeldaraSection } from './components/VeldaraSection';
+import { SpdSection } from './components/SpdSection';
 import { LithosSection } from './components/LithosSection';
 import { FearlessSection } from './components/FearlessSection';
 import { QuietpressSection } from './components/QuietpressSection';
@@ -108,8 +108,8 @@ export function App(): React.JSX.Element {
         </div>
       </section>
 
-      {/* SECTION 2: VELDARA SCROLL EXPERIENCE */}
-      <VeldaraSection />
+      {/* SECTION 2: S.P.D PROJECTS EXPERIENCE */}
+      <SpdSection />
 
       {/* SECTION 3: LITHOS GEOLOGY BRAND HERO */}
       <LithosSection />

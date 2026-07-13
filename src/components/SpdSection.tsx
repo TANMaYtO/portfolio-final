@@ -58,7 +58,7 @@ export function SpdSection(): React.JSX.Element {
   const itemVariants: Variants = getItemVariants();
 
   return (
-    <section className="relative min-h-screen w-full bg-[#FF0000] flex flex-col z-30 font-manrope pb-12 sm:pb-20">
+    <section className="relative min-h-screen w-full bg-[#FF0000] flex flex-col z-30 font-manrope pb-[300px] md:pb-[600px]">
       <div className="flex-1 flex flex-col items-center w-full pt-[100px] md:pt-[400px]">
         <motion.div
           className="flex flex-col items-center w-full px-8 text-center z-20 relative max-w-[900px] h-auto md:h-[620px] mx-auto"

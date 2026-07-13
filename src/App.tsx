@@ -111,14 +111,17 @@ export function App(): React.JSX.Element {
       {/* SECTION 2: S.P.D PROJECTS EXPERIENCE */}
       <SpdSection />
 
-      {/* SECTION 3: LITHOS GEOLOGY BRAND HERO */}
-      <LithosSection />
+      {/* ALL THREE SECTIONS AFTER S.P.D SHIFTED DOWN IN POSITION */}
+      <div className="relative z-20 w-full pt-[300px] md:pt-[500px]">
+        {/* SECTION 3: LITHOS GEOLOGY BRAND HERO */}
+        <LithosSection />
 
-      {/* SECTION 4: CREATIVE STUDIOS HERO (FEARLESS VISION DELIVERED) */}
-      <FearlessSection />
+        {/* SECTION 4: CREATIVE STUDIOS HERO (FEARLESS VISION DELIVERED) */}
+        <FearlessSection />
 
-      {/* SECTION 5: QUIETPRESS MUSIC ARCHIVE HERO */}
-      <QuietpressSection />
+        {/* SECTION 5: QUIETPRESS MUSIC ARCHIVE HERO */}
+        <QuietpressSection />
+      </div>
     </div>
   );
 }

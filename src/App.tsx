@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight, FileText } from 'lucide-react';
 import { BackgroundVideo } from './components/BackgroundVideo';
 import { Navbar } from './components/Navbar';
-import { SpdSection } from './components/SpdSection';
+import { VeldaraSection } from './components/VeldaraSection';
 import { LithosSection } from './components/LithosSection';
 import { FearlessSection } from './components/FearlessSection';
 import { QuietpressSection } from './components/QuietpressSection';
@@ -108,20 +108,17 @@ export function App(): React.JSX.Element {
         </div>
       </section>
 
-      {/* SECTION 2: S.P.D PROJECTS EXPERIENCE */}
-      <SpdSection />
+      {/* SECTION 2: VELDARA SCROLL EXPERIENCE */}
+      <VeldaraSection />
 
-      {/* ALL THREE SECTIONS AFTER S.P.D SHIFTED DOWN IN POSITION */}
-      <div className="relative z-20 w-full pt-[300px] md:pt-[500px]">
-        {/* SECTION 3: LITHOS GEOLOGY BRAND HERO */}
-        <LithosSection />
+      {/* SECTION 3: LITHOS GEOLOGY BRAND HERO */}
+      <LithosSection />
 
-        {/* SECTION 4: CREATIVE STUDIOS HERO (FEARLESS VISION DELIVERED) */}
-        <FearlessSection />
+      {/* SECTION 4: CREATIVE STUDIOS HERO (FEARLESS VISION DELIVERED) */}
+      <FearlessSection />
 
-        {/* SECTION 5: QUIETPRESS MUSIC ARCHIVE HERO */}
-        <QuietpressSection />
-      </div>
+      {/* SECTION 5: QUIETPRESS MUSIC ARCHIVE HERO */}
+      <QuietpressSection />
     </div>
   );
 }
